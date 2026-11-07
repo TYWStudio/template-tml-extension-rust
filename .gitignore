@@ -1,0 +1,4 @@
+# 构建产物（源码请保留）
+bin/
+target/
+*.tmlext

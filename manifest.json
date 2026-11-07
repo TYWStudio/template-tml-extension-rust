@@ -1,0 +1,14 @@
+{
+  "id": "com.tywstudio.example.rust",
+  "name": "Rust 示例扩展",
+  "version": "1.0.0",
+  "author": "TYWStudio",
+  "description": "TML 扩展 API v1 的 Rust 语言示例（零依赖，编译为原生可执行）",
+  "apiVersion": 1,
+  "runtime": "rust",
+  "format": "tmlext",
+  "entry": "bin/tml_ext",
+  "platforms": ["windows", "linux", "macos"],
+  "subscribe": ["launcher.started", "game.launched", "settings.changed"],
+  "permissions": ["log", "toast", "host.info", "instances.list", "events", "storage", "settings"]
+}

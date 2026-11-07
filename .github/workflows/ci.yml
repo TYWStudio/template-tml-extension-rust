@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & smoke test (ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Set up Rust
+        run: |
+          rustc --version
+          cargo --version
+
+      - name: Validate manifest
+        run: python3 tests/check_manifest.py rust
+
+      - name: Build (cargo)
+        run: |
+          cargo build --release --locked || cargo build --release
+          mkdir -p bin
+          cp target/release/tml_ext bin/tml_ext
+
+      - name: Protocol smoke test
+        run: python3 tests/smoke.py ./bin/tml_ext
+
+      - name: Package .tmlext
+        run: python3 build.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tml-extension-rust
+          path: template-tml-extension-rust.tmlext
+          if-no-files-found: error
