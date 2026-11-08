@@ -1,14 +1,21 @@
 [package]
-name = "tml-ext"
+name = "tml-ext-template"
 version = "1.0.0"
 edition = "2021"
-description = "TML Extension API v1 example extension (Rust)"
+description = "TML Extension API v1 template (Rust)"
 license = "CC-BY-NC-4.0"
+readme = "README.md"
 publish = false
 
 [[bin]]
 name = "tml_ext"
 path = "src/main.rs"
+
+# SDK 只在 TML 仓库维护，这里只引用、不复制。
+# 升级：把 tag 换成新的 SDK 版本；SDK 源码在
+# https://github.com/TYWStudio/TML/tree/main/extensions/sdk/rust
+[dependencies]
+tml-ext = { git = "https://github.com/TYWStudio/TML", tag = "sdk-rust-v1.0.0" }
 
 # 扩展是独立子进程，产物越小越好
 [profile.release]

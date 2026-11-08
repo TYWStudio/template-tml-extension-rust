@@ -6,9 +6,13 @@
 
 # TML 扩展模板 · Rust（template-tml-extension-rust）
 
-适用于 **TYW Launcher（TML）扩展 API v1** 的 **Rust 语言**扩展模板。本模板演示如何用纯 Rust
-（**只用标准库，不引入任何 crate**）编写启动器扩展：宿主（启动器）在独立进程里拉起你编译好的
-原生可执行文件，双方仅通过 **stdin / stdout 的 NDJSON（每行一个 JSON）** 交换白名单方法。
+适用于 **TYW Launcher（TML）扩展 API v1** 的 **Rust 语言**扩展模板。宿主（启动器）在独立进程里
+拉起你编译好的原生可执行文件，双方仅通过 **stdin / stdout 的 NDJSON（每行一个 JSON）** 交换白名单方法。
+
+SDK（crate `tml-ext`，自带极简 JSON，零第三方依赖）只在 **TML 仓库** 的
+[`extensions/sdk/rust`](https://github.com/TYWStudio/TML/tree/main/extensions/sdk/rust) 维护，
+本仓库用 Cargo 的 git 依赖引用它（`tag = "sdk-rust-v1.0.0"`），`src/main.rs` 里只写业务逻辑。
+**不要在模板里复制 `lib.rs`**：协议改动只会发生在 TML 仓库，模板升级 tag 即可。
 
 > 许可：**CC BY-NC 4.0**（禁止商业使用，署名）。见 `LICENSE`。
 
@@ -34,7 +38,7 @@
 宿主 → 扩展: {"method":"shutdown"}                                （扩展直接退出）
 ```
 
-`src/main.rs` 内含零依赖的 JSON 读写与请求/响应骨架，开箱即用；宿主还会通过环境变量下发配置：
+请求/响应骨架由 SDK 提供（见上），`src/main.rs` 只实现 `ready` / `event`；宿主还会通过环境变量下发配置：
 
 | 变量 | 含义 |
 | --- | --- |
@@ -52,7 +56,8 @@
 
 ## 构建
 
-需要 Rust 工具链：**Cargo**（推荐）或裸 `rustc`。模板不依赖任何 crate，离线也能构建；
+需要 Rust 工具链 **Cargo** 与 Python 3（打包用）。SDK 是 git 依赖，首次构建会 clone 一次 TML 仓库
+（之后走 cargo 缓存）；
 打包用 Python 3。
 
 ### Linux / macOS
@@ -69,7 +74,7 @@ build.bat
  rem 产物：template-tml-extension-rust.tmlext
 ```
 
-脚本会先 `cargo build --release`（没有 Cargo 时回退 `rustc -O src/main.rs`），把二进制复制到
+脚本会先 `cargo build --release`（SDK 由 Cargo 拉取），把二进制复制到
 `bin/tml_ext[.exe]`，再由 `build.py` 将 `manifest.json` + 源码 + 二进制打成 `.tmlext`。
 
 ## 测试
@@ -104,7 +109,7 @@ python3 tests/smoke.py ./bin/tml_ext   # 协议冒烟测试
 template-tml-extension-rust/
 ├── manifest.json         # 扩展清单
 ├── Cargo.toml            # 无依赖，产出名为 tml_ext 的二进制
-├── src/main.rs           # 仅标准库的 NDJSON SDK + 示例逻辑
+├── src/main.rs           # 业务逻辑（ready / event），SDK 不在本仓库
 ├── build.py              # 跨平台打包为 .tmlext
 ├── build.sh / build.bat  # 编译 + 打包
 ├── tests/                # 清单校验 + 宿主侧协议冒烟测试

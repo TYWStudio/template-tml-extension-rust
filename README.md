@@ -4,10 +4,14 @@
 
 # TML Extension Template · Rust
 
-A **Rust** extension template for the **TYW Launcher (TML)** extension API v1. It shows how to write a
-launcher extension in plain Rust — **standard library only, no crates** — where the host (launcher)
+A **Rust** extension template for the **TYW Launcher (TML)** extension API v1. The host (launcher)
 spawns your compiled native binary in a separate process and the two sides exchange allow-listed
 methods over **NDJSON on stdin/stdout** (one JSON object per line).
+
+The SDK (crate `tml-ext`, self-contained JSON, zero third-party dependencies) lives in the **TML
+repository** at [`extensions/sdk/rust`](https://github.com/TYWStudio/TML/tree/main/extensions/sdk/rust).
+This template pulls it in as a Cargo git dependency (`tag = "sdk-rust-v1.0.0"`) and keeps
+`src/main.rs` for your own logic — **never copy `lib.rs` in here**.
 
 > License: **CC BY-NC 4.0** (non-commercial, attribution). See `LICENSE`.
 >
@@ -36,7 +40,8 @@ Host → Ext: {"method":"event","params":{"type":"game.launched","data":{...}}}
 Host → Ext: {"method":"shutdown"}                                (the extension just exits)
 ```
 
-`src/main.rs` contains a dependency-free JSON reader/writer and the request/response plumbing, ready
+The request/response plumbing comes from the SDK, not this repository; `src/main.rs` only implements
+`ready` / `event`, ready
 to use. The host also passes configuration through environment variables:
 
 | Variable | Meaning |
@@ -55,8 +60,8 @@ to use. The host also passes configuration through environment variables:
 
 ## Build
 
-Requires a Rust toolchain: **Cargo** (preferred) or a bare `rustc`. No crates are downloaded, so the
-build works offline. Python 3 is used for packaging.
+Requires the Rust toolchain (**Cargo**) and Python 3 (for packaging). The SDK is a git dependency, so
+the first build clones the TML repository once; afterwards it is served from the Cargo cache.
 
 ### Linux / macOS
 
@@ -72,7 +77,7 @@ build.bat
  rem output: template-tml-extension-rust.tmlext
 ```
 
-`build.sh` / `build.bat` run `cargo build --release` (falling back to `rustc -O src/main.rs`), copy the
+`build.sh` / `build.bat` run `cargo build --release` (Cargo fetches the SDK), copy the
 binary to `bin/tml_ext[.exe]`, then `build.py` packs `manifest.json` + sources + the binary into the
 `.tmlext`.
 
@@ -109,7 +114,7 @@ in the launcher console.
 template-tml-extension-rust/
 ├── manifest.json         # Extension manifest
 ├── Cargo.toml            # No dependencies; produces bin target `tml_ext`
-├── src/main.rs           # std-only NDJSON SDK + example logic
+├── src/main.rs           # your logic (ready / event); the SDK lives in TML
 ├── build.py              # Cross-platform packaging into .tmlext
 ├── build.sh / build.bat  # Compile + package
 ├── tests/                # Manifest check + host-side protocol smoke test

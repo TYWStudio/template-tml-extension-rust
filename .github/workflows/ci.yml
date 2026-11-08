@@ -28,7 +28,7 @@ jobs:
 
       - name: Build (cargo)
         run: |
-          cargo build --release --locked || cargo build --release
+          cargo build --release
           mkdir -p bin
           cp target/release/tml_ext bin/tml_ext
 
